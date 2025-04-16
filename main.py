@@ -117,7 +117,7 @@ elif app_mode == "Prédiction":
     else:  # Parcourir les Images d'Exemple
         st.subheader("Sélectionnez une espèce de plante pour voir des images d'exemple:")
         selected_class = st.selectbox("Choisissez une espèce de plante", class_labels)
-        test_folder = f"data/test/{selected_class.lower().replace(' ', '_')}"
+        test_folder = f"data/test/{selected_class}"
         
         # Check if the folder exists
         if not os.path.exists(test_folder):
