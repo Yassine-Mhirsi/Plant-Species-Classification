@@ -2,6 +2,8 @@
 
 Ce projet est une application de classification d'images qui identifie différentes espèces de plantules en utilisant un modèle d'apprentissage profond. L'application utilise un modèle basé sur EfficientNet pour classifier des images de semis de cultures et de mauvaises herbes en 12 catégories différentes.
 
+![Page d'accueil de l'application](screenshots/Home-page.png)
+
 ## Application en Ligne
 
 L'application est déployée et disponible en ligne à l'adresse suivante :

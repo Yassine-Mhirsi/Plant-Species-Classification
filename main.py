@@ -11,7 +11,7 @@ from tensorflow.keras.applications.efficientnet import preprocess_input
 @st.cache_resource
 def load_plant_model():
     # Load the pre-trained model
-    model = load_model("plant_classification_modelv2.h5")
+    model = load_model("models/plant_classification_modelv2.h5")
     return model
 
 # Load the model
@@ -53,7 +53,7 @@ if app_mode == "Accueil":
     st.header(" Classification d'images de semis de cultures et de mauvaises herbes")
     st.subheader("Classification des plantules en douze catégories d'espèces:")
     st.write("Cette application aide à identifier différentes espèces de plantules à l'aide d'un modèle d'apprentissage profond.")
-    st.image("dataset-cover.jpg")
+    st.image("screenshots/dataset-cover.jpg")
 
 elif app_mode == "À Propos du Projet":
     st.header("À Propos du Projet")
