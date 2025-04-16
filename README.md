@@ -2,6 +2,13 @@
 
 Ce projet est une application de classification d'images qui identifie différentes espèces de plantules en utilisant un modèle d'apprentissage profond. L'application utilise un modèle basé sur EfficientNet pour classifier des images de semis de cultures et de mauvaises herbes en 12 catégories différentes.
 
+## Application en Ligne
+
+L'application est déployée et disponible en ligne à l'adresse suivante :
+**[https://plant-species-classification-tn.streamlit.app/](https://plant-species-classification-tn.streamlit.app/)**
+
+Vous pouvez y accéder directement sans avoir à installer quoi que ce soit sur votre machine.
+
 ## Jeu de Données
 
 Le projet utilise le [V2 Plant Seedlings Dataset](https://www.kaggle.com/datasets/vbookshelf/v2-plant-seedlings-dataset) de Kaggle, qui contient des images de plantules à différents stades de croissance.
