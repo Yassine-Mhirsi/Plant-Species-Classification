@@ -11,7 +11,7 @@ from tensorflow.keras.applications.efficientnet import preprocess_input
 @st.cache_resource
 def load_plant_model():
     # Load the pre-trained model
-    model = load_model("plant_classification_modelv4.h5")
+    model = load_model("plant_classification_modelv2.h5")
     return model
 
 # Load the model
