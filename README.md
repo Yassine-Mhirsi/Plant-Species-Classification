@@ -40,7 +40,7 @@ Les classes de plantules disponibles sont :
 
 1. Clonez ce dépôt :
 ```
-git clone https://github.com/yourusername/Plant-Species-Classification.git
+git clone https://github.com/Yassine-Mhirsi/Plant-Species-Classification.git
 cd Plant-Species-Classification
 ```
 
@@ -75,5 +75,5 @@ data/
 
 ## Modèle
 
-Le modèle utilisé (`plant_classification_modelv4.h5`) est basé sur EfficientNet avec des couches de classification personnalisées. Assurez-vous que ce fichier de modèle se trouve dans le même répertoire que `main.py`.
+Le modèle utilisé (`plant_classification_modelv2.h5`) est basé sur EfficientNet avec des couches de classification personnalisées. Assurez-vous que ce fichier de modèle se trouve dans le même répertoire que `main.py`.
  
