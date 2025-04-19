@@ -19,7 +19,7 @@ def keep_alive(url):
             print(f"Keep-alive ping sent. Status code: {response.status_code}")
         except Exception as e:
             print(f"Keep-alive ping failed: {str(e)}")
-        time.sleep(3000)  # Sleep for 50 minutes (3000 seconds)
+        time.sleep(30)  # Sleep for 50 minutes (3000 seconds)
 
 # Start the keep-alive thread if running on Streamlit Cloud
 if os.environ.get('STREAMLIT_CLOUD', '') == 'true':
