@@ -70,7 +70,8 @@ data/
     ├── black-grass/
     ├── charlock/
     ├── cleavers/
-    └── ...
+    └── maize/
+    └── ....
 ```
 
 ## Modèle
