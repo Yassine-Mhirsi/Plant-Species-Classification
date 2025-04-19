@@ -5,8 +5,27 @@ import cv2
 import os
 from PIL import Image 
 import random
+import threading
+import time
+import requests
 from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.efficientnet import preprocess_input
+
+def keep_alive(url):
+    """Function to keep the Streamlit app alive by sending periodic requests."""
+    while True:
+        try:
+            response = requests.get(url)
+            print(f"Keep-alive ping sent. Status code: {response.status_code}")
+        except Exception as e:
+            print(f"Keep-alive ping failed: {str(e)}")
+        time.sleep(3000)  # Sleep for 50 minutes (3000 seconds)
+
+# Start the keep-alive thread if running on Streamlit Cloud
+if os.environ.get('STREAMLIT_CLOUD', '') == 'true':
+    app_url = "https://plant-species-classification-tn.streamlit.app/"  # Replace with your app's URL
+    keep_alive_thread = threading.Thread(target=keep_alive, args=(app_url,), daemon=True)
+    keep_alive_thread.start()
 
 @st.cache_resource
 def load_plant_model():
