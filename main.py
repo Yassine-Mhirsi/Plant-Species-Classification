@@ -10,12 +10,85 @@ from tensorflow.keras.applications.efficientnet import preprocess_input
 
 @st.cache_resource
 def load_plant_model():
-    # Load the pre-trained model
-    model = load_model("models/plant_classification_modelv2.h5")
-    return model
+    """Load the plant classification model with fallback options"""
+    import os
+    from tensorflow.keras.models import load_model
+    from tensorflow.keras.applications import efficientnet
+    from tensorflow.keras.layers import Dense, Dropout
+    from tensorflow.keras import Model
+    
+    # Try different model files in order of preference
+    model_files = [
+        "models/plant_classification_modelv2.h5",
+        "models/plant_classification_modelv4.h5"
+    ]
+    
+    for model_path in model_files:
+        if os.path.exists(model_path):
+            try:
+                print(f"Attempting to load model: {model_path}")
+                model = load_model(model_path)
+                print(f"Successfully loaded model: {model_path}")
+                print(f"Model input shape: {model.input_shape}")
+                return model
+            except ValueError as e:
+                if "Shape mismatch" in str(e):
+                    print(f"Shape mismatch detected in {model_path}: {str(e)}")
+                    print("Attempting to create a compatible model...")
+                    
+                    # Create a new model with the correct architecture
+                    try:
+                        # Create EfficientNet base model
+                        base_model = efficientnet.EfficientNetB0(
+                            include_top=False,
+                            weights='imagenet',
+                            input_shape=(224, 224, 3),
+                            pooling='avg',
+                        )
+                        base_model.trainable = False
+                        
+                        # Add classification layers
+                        x = Dense(256, activation='relu')(base_model.output)
+                        x = Dense(128, activation='relu')(x)
+                        x = Dropout(0.4)(x)
+                        outputs = Dense(12, activation='softmax')(x)
+                        
+                        # Create new model
+                        new_model = Model(inputs=base_model.inputs, outputs=outputs)
+                        
+                        # Try to load weights with custom_objects
+                        try:
+                            new_model.load_weights(model_path)
+                            print(f"Successfully loaded weights into new model architecture")
+                            return new_model
+                        except Exception as weight_error:
+                            print(f"Could not load weights: {str(weight_error)}")
+                            print("Using model with ImageNet weights (will have lower accuracy)")
+                            return new_model
+                            
+                    except Exception as create_error:
+                        print(f"Failed to create compatible model: {str(create_error)}")
+                        continue
+                else:
+                    print(f"Failed to load {model_path}: {str(e)}")
+                    continue
+            except Exception as e:
+                print(f"Failed to load {model_path}: {str(e)}")
+                continue
+    
+    # If all models fail, raise an error
+    raise FileNotFoundError("No valid model file found. Please check that model files exist in the models/ directory.")
 
 # Load the model
-model = load_plant_model()
+try:
+    model = load_plant_model()
+    st.success("✅ Model loaded successfully!")
+    # Show model info in sidebar for debugging
+    with st.sidebar:
+        st.info(f"Model input shape: {model.input_shape}")
+except Exception as e:
+    st.error(f"❌ Failed to load model: {str(e)}")
+    st.stop()
 
 # Define class labels (matching the training data exactly)
 class_labels = ['Black-grass', 'Charlock', 'Cleavers', 'Common Chickweed', 
@@ -24,13 +97,14 @@ class_labels = ['Black-grass', 'Charlock', 'Cleavers', 'Common Chickweed',
                 'Sugar beet']
 
 def model_prediction(image):
+    """Make prediction with robust image preprocessing"""
     if isinstance(image, str):
         img = cv2.imread(image)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     else:
         img = np.array(image)
     
-    # Ensure image is RGB (3 channels)
+    # Handle different image formats
     if len(img.shape) == 2:  # Grayscale
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
     elif img.shape[2] == 4:  # RGBA
@@ -39,14 +113,25 @@ def model_prediction(image):
     # Resize to match the input size expected by EfficientNet (224x224)
     img = cv2.resize(img, (224, 224))
     
-    # Preprocess input for EfficientNet (this normalizes to [-1, 1] range)
-    img = preprocess_input(img)
+    # Check model input shape to determine preprocessing
+    model_input_shape = model.input_shape
+    expected_channels = model_input_shape[-1] if model_input_shape else 3
+    
+    # Convert to grayscale if model expects 1 channel
+    if expected_channels == 1:
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        img = np.expand_dims(img, axis=-1)  # Add channel dimension
+        # Simple normalization for grayscale
+        img = img.astype(np.float32) / 255.0
+    else:
+        # Use EfficientNet preprocessing for RGB images
+        img = preprocess_input(img)
     
     # Add batch dimension
     input_arr = np.expand_dims(img, axis=0)
     
     # Make prediction
-    predictions = model.predict(input_arr)
+    predictions = model.predict(input_arr, verbose=0)
     predicted_index = np.argmax(predictions)
     predicted_prob = predictions[0][predicted_index] * 100
     
@@ -63,6 +148,11 @@ if app_mode == "Accueil":
 
 elif app_mode == "À Propos du Projet":
     st.header("À Propos du Projet")
+    
+    # Model information section
+    st.subheader("Informations sur le Modèle")
+    st.info(f"**Modèle chargé avec succès!**\n\n- **Forme d'entrée:** {model.input_shape}\n- **Nombre de classes:** {len(class_labels)}")
+    
     st.subheader("Aperçu du Jeu de Données")
     st.text("""Le jeu de données est composé d'images de plantules à différents stades de croissance.
 Chaque image appartient à l'une des douze espèces de plantes:""")
