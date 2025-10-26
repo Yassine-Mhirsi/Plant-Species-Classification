@@ -11,16 +11,16 @@ from tensorflow.keras.applications.efficientnet import preprocess_input
 @st.cache_resource
 def load_plant_model():
     # Load the pre-trained model
-    model = load_model("models/plant_classification_modelv4.h5")
+    model = load_model("models/plant_classification_modelv2.h5")
     return model
 
 # Load the model
 model = load_plant_model()
 
-# Define class labels
+# Define class labels (matching the training data exactly)
 class_labels = ['Black-grass', 'Charlock', 'Cleavers', 'Common Chickweed', 
                 'Common wheat', 'Fat Hen', 'Loose Silky-bent', 'Maize', 
-                'Scentless Mayweed', 'Shepherds Purse', 'Small-flowered Cranesbill', 
+                'Scentless Mayweed', "Shepherd's Purse", 'Small-flowered Cranesbill', 
                 'Sugar beet']
 
 def model_prediction(image):
@@ -30,10 +30,16 @@ def model_prediction(image):
     else:
         img = np.array(image)
     
-    # Resize to match the input size expected by EfficientNet (224x224 is common)
+    # Ensure image is RGB (3 channels)
+    if len(img.shape) == 2:  # Grayscale
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+    elif img.shape[2] == 4:  # RGBA
+        img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
+    
+    # Resize to match the input size expected by EfficientNet (224x224)
     img = cv2.resize(img, (224, 224))
     
-    # Preprocess input for EfficientNet
+    # Preprocess input for EfficientNet (this normalizes to [-1, 1] range)
     img = preprocess_input(img)
     
     # Add batch dimension
